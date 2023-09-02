@@ -1,0 +1,44 @@
+#include <stdio.h>
+#include <stdbool.h>
+
+#define STATES 3
+
+// DFA transition function
+int transitionTable[STATES][2] = {
+    {1, 2}, // state 0 - On '0', move to state 1; On '1', move to state 2
+    {1, 2}, // state 1 - On '0', stay in state 1; On '1', move to state 2
+    {2, 2}  // state 2 - On '0', move to state 2; On '1', move to state 2
+};
+
+bool isAccepted(char *str) {
+    int currentState = 0;
+	int i;
+    for ( i = 0; str[i] != '\0'; i++) {
+        char input = str[i];
+
+        if (input != '0' && input != '1') {
+            printf("Invalid input character: %c\n", input);
+            return false;
+        }
+
+        int inputIndex = (input == '0') ? 0 : 1;
+        currentState = transitionTable[currentState][inputIndex];
+    }
+
+    return currentState == 2; // Check if the final state is state 2 (accepting state)
+}
+
+int main() {
+    char str[100];
+
+    printf("Enter a string: ");
+    scanf("%s", str);
+
+    if (isAccepted(str)) {
+        printf("String is accepted by the DFA.\n");
+    } else {
+        printf("String is not accepted by the DFA.\n");
+    }
+
+    return 0;
+}

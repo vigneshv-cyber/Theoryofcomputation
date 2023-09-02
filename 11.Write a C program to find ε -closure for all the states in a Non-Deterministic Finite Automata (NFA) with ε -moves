@@ -1,0 +1,88 @@
+#include <stdio.h>
+#include <stdbool.h>
+
+#define MAX_STATES 100
+#define MAX_SYMBOLS 100
+
+int n_states, n_symbols;
+int transitions[MAX_STATES][MAX_SYMBOLS];
+bool epsilon_moves[MAX_STATES][MAX_STATES];
+
+// Function to add an ε-move from state 'from' to state 'to'
+void addEpsilonMove(int from, int to) {
+    epsilon_moves[from][to] = true;
+}
+
+// Function to find the ε-closure of a state using Breadth-First Search
+void findEpsilonClosure(int state, bool closure[]) {
+    bool visited[MAX_STATES] = {false};
+    int queue[MAX_STATES];
+    int front = 0, rear = 0;
+
+    queue[rear++] = state;
+    visited[state] = true;
+    closure[state] = true;
+
+    while (front < rear) {
+        int current_state = queue[front++];
+        
+        for (int i = 0; i < n_states; i++) {
+            if (epsilon_moves[current_state][i] && !visited[i]) {
+                queue[rear++] = i;
+                visited[i] = true;
+                closure[i] = true;
+            }
+        }
+    }
+}
+
+int main() {
+    // Initialize the transition table and epsilon_moves matrix to 0 (false)
+    for (int i = 0; i < MAX_STATES; i++) {
+        for (int j = 0; j < MAX_SYMBOLS; j++) {
+            transitions[i][j] = -1;
+            epsilon_moves[i][j] = false;
+        }
+    }
+
+    printf("Enter the number of states: ");
+    scanf("%d", &n_states);
+
+    printf("Enter the number of input symbols: ");
+    scanf("%d", &n_symbols);
+
+    printf("Enter the transition table (Enter -1 if no transition):\n");
+    for (int i = 0; i < n_states; i++) {
+        for (int j = 0; j < n_symbols; j++) {
+            scanf("%d", &transitions[i][j]);
+        }
+    }
+
+    int num_epsilon_moves;
+    printf("Enter the number of ε-moves: ");
+    scanf("%d", &num_epsilon_moves);
+
+    printf("Enter the ε-moves (from_state to_state):\n");
+    for (int i = 0; i < num_epsilon_moves; i++) {
+        int from_state, to_state;
+        scanf("%d %d", &from_state, &to_state);
+        addEpsilonMove(from_state, to_state);
+    }
+
+    // Find ε-closure for all states
+    printf("\nEpsilon Closures:\n");
+    for (int state = 0; state < n_states; state++) {
+        bool closure[MAX_STATES] = {false};
+        findEpsilonClosure(state, closure);
+
+        printf("ε-Closure(q%d): { ", state);
+        for (int i = 0; i < n_states; i++) {
+            if (closure[i]) {
+                printf("q%d ", i);
+            }
+        }
+        printf("}\n");
+    }
+
+    return 0;
+}
